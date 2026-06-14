@@ -1,0 +1,232 @@
+{
+  "startedAt": "2026-06-14T09:28:18.532Z",
+  "backend": "offline",
+  "apiKeySet": false,
+  "inputFile": "/home/harness/cyops_data/workspace/zk-mcp/examples/UnsafeMultiplier.circom",
+  "inputSizeChars": 1662,
+  "results": {
+    "audit_circuit": {
+      "findings": [
+        {
+          "severity": "critical",
+          "category": "under-constrained",
+          "title": "Output signal 'out' is not pinned by any constraint",
+          "signal": "out",
+          "line": 32,
+          "description": "'out' is declared as a circuit output but does not appear on the LHS of '<==', '===', or '$$' anywhere in the source. A prover can choose any value for 'out' and the verifier will accept it. A bare '<-- out = <expr>;' is only a witness assignment, not a constraint.",
+          "fix": "Add a constraint that pins 'out', e.g. 'out <== <expr>;' or 'out === <expr>;' on the line below the declaration.",
+          "weaknessId": "ZKWC-001"
+        },
+        {
+          "severity": "high",
+          "category": "missing-constraint",
+          "title": "Witness assignment '<-- out' has no matching constraint",
+          "signal": "out",
+          "line": 33,
+          "description": "Circom 2.x '<--' is a witness-only assignment and adds NO constraint. The value 'a * b' is therefore prover-chosen unless a matching '<==', '===' or '$$' appears on the next non-empty, non-comment line.",
+          "fix": "Replace 'out <-- a * b;' with 'out <== a * b;', or add a separate 'out === a * b;' constraint directly under the assignment.",
+          "weaknessId": "ZKWC-008"
+        },
+        {
+          "severity": "high",
+          "category": "missing-constraint",
+          "title": "Witness assignment '<-- sum' has no matching constraint",
+          "signal": "sum",
+          "line": 41,
+          "description": "Circom 2.x '<--' is a witness-only assignment and adds NO constraint. The value 'a + b' is therefore prover-chosen unless a matching '<==', '===' or '$$' appears on the next non-empty, non-comment line.",
+          "fix": "Replace 'out <-- a * b;' with 'out <== a * b;', or add a separate 'sum === a + b;' constraint directly under the assignment.",
+          "weaknessId": "ZKWC-008"
+        },
+        {
+          "severity": "low",
+          "category": "missing-range-check",
+          "title": "Public input 'pub' is not range-checked",
+          "signal": "pub",
+          "line": 24,
+          "description": "'pub' is a public input used in arithmetic. Without a range check (Num2Bits, RangeCheck, or bit-decomposition), a malicious prover can submit a value outside the intended bit-width and exploit field-modulus wraparound.",
+          "fix": "Add a Num2Bits(n) / range-check sub-template that bounds 'pub' to its intended bit-width.",
+          "weaknessId": "ZKWC-003"
+        },
+        {
+          "severity": "low",
+          "category": "missing-range-check",
+          "title": "Public input 'a' is not range-checked",
+          "signal": "a",
+          "line": 27,
+          "description": "'a' is a public input used in arithmetic. Without a range check (Num2Bits, RangeCheck, or bit-decomposition), a malicious prover can submit a value outside the intended bit-width and exploit field-modulus wraparound.",
+          "fix": "Add a Num2Bits(n) / range-check sub-template that bounds 'a' to its intended bit-width.",
+          "weaknessId": "ZKWC-003"
+        },
+        {
+          "severity": "low",
+          "category": "missing-range-check",
+          "title": "Public input 'b' is not range-checked",
+          "signal": "b",
+          "line": 28,
+          "description": "'b' is a public input used in arithmetic. Without a range check (Num2Bits, RangeCheck, or bit-decomposition), a malicious prover can submit a value outside the intended bit-width and exploit field-modulus wraparound.",
+          "fix": "Add a Num2Bits(n) / range-check sub-template that bounds 'b' to its intended bit-width.",
+          "weaknessId": "ZKWC-003"
+        }
+      ],
+      "summary": "6 finding(s): 1 critical, 2 high, 0 medium, 3 low, 0 info. Intent: Offline rule-based audit (no CYSIC_API_KEY set).",
+      "soundnessScore": 52,
+      "meta": {
+        "language": "circom",
+        "offline": true
+      }
+    },
+    "check_constraint": {
+      "concern": "is the output 'out' fully constrained?",
+      "verdict": "unsound",
+      "explanation": "3 under-constrained / unconstrained signal(s) found.",
+      "findings": [
+        {
+          "severity": "critical",
+          "category": "under-constrained",
+          "title": "Output signal 'out' is not pinned by any constraint",
+          "signal": "out",
+          "line": 32,
+          "description": "'out' is declared as a circuit output but does not appear on the LHS of '<==', '===', or '$$' anywhere in the source. A prover can choose any value for 'out' and the verifier will accept it. A bare '<-- out = <expr>;' is only a witness assignment, not a constraint.",
+          "fix": "Add a constraint that pins 'out', e.g. 'out <== <expr>;' or 'out === <expr>;' on the line below the declaration.",
+          "weaknessId": "ZKWC-001"
+        },
+        {
+          "severity": "high",
+          "category": "missing-constraint",
+          "title": "Witness assignment '<-- out' has no matching constraint",
+          "signal": "out",
+          "line": 33,
+          "description": "Circom 2.x '<--' is a witness-only assignment and adds NO constraint. The value 'a * b' is therefore prover-chosen unless a matching '<==', '===' or '$$' appears on the next non-empty, non-comment line.",
+          "fix": "Replace 'out <-- a * b;' with 'out <== a * b;', or add a separate 'out === a * b;' constraint directly under the assignment.",
+          "weaknessId": "ZKWC-008"
+        },
+        {
+          "severity": "high",
+          "category": "missing-constraint",
+          "title": "Witness assignment '<-- sum' has no matching constraint",
+          "signal": "sum",
+          "line": 41,
+          "description": "Circom 2.x '<--' is a witness-only assignment and adds NO constraint. The value 'a + b' is therefore prover-chosen unless a matching '<==', '===' or '$$' appears on the next non-empty, non-comment line.",
+          "fix": "Replace 'out <-- a * b;' with 'out <== a * b;', or add a separate 'sum === a + b;' constraint directly under the assignment.",
+          "weaknessId": "ZKWC-008"
+        },
+        {
+          "severity": "low",
+          "category": "missing-range-check",
+          "title": "Public input 'pub' is not range-checked",
+          "signal": "pub",
+          "line": 24,
+          "description": "'pub' is a public input used in arithmetic. Without a range check (Num2Bits, RangeCheck, or bit-decomposition), a malicious prover can submit a value outside the intended bit-width and exploit field-modulus wraparound.",
+          "fix": "Add a Num2Bits(n) / range-check sub-template that bounds 'pub' to its intended bit-width.",
+          "weaknessId": "ZKWC-003"
+        },
+        {
+          "severity": "low",
+          "category": "missing-range-check",
+          "title": "Public input 'a' is not range-checked",
+          "signal": "a",
+          "line": 27,
+          "description": "'a' is a public input used in arithmetic. Without a range check (Num2Bits, RangeCheck, or bit-decomposition), a malicious prover can submit a value outside the intended bit-width and exploit field-modulus wraparound.",
+          "fix": "Add a Num2Bits(n) / range-check sub-template that bounds 'a' to its intended bit-width.",
+          "weaknessId": "ZKWC-003"
+        },
+        {
+          "severity": "low",
+          "category": "missing-range-check",
+          "title": "Public input 'b' is not range-checked",
+          "signal": "b",
+          "line": 28,
+          "description": "'b' is a public input used in arithmetic. Without a range check (Num2Bits, RangeCheck, or bit-decomposition), a malicious prover can submit a value outside the intended bit-width and exploit field-modulus wraparound.",
+          "fix": "Add a Num2Bits(n) / range-check sub-template that bounds 'b' to its intended bit-width.",
+          "weaknessId": "ZKWC-003"
+        }
+      ],
+      "meta": {
+        "language": "circom",
+        "offline": true
+      }
+    },
+    "explain_circuit": {
+      "summary": "Offline scan of a Circom circuit. The summary is rule-based: public and private signals are listed from declarations, and the signal->constraint map is best-effort. A live model call would produce a richer explanation.",
+      "publicSignals": [
+        {
+          "name": "pub",
+          "meaning": "public input declared at line 24"
+        },
+        {
+          "name": "a",
+          "meaning": "public input declared at line 27"
+        },
+        {
+          "name": "b",
+          "meaning": "public input declared at line 28"
+        }
+      ],
+      "privateSignals": [],
+      "signalToConstraintMap": [
+        {
+          "signal": "out",
+          "constrainedBy": "(check: see line 32)"
+        }
+      ],
+      "reviewerNotes": [
+        "Run the audit_circuit tool with a real CYSIC_API_KEY for a deeper explanation."
+      ],
+      "meta": {
+        "language": "circom",
+        "offline": true
+      }
+    },
+    "suggest_constraints": {
+      "suggestions": [
+        {
+          "weaknessId": "ZKWC-001",
+          "title": "Output signal 'out' is not pinned by any constraint",
+          "rationale": "'out' is declared as a circuit output but does not appear on the LHS of '<==', '===', or '$$' anywhere in the source. A prover can choose any value for 'out' and the verifier will accept it. A bare '<-- out = <expr>;' is only a witness assignment, not a constraint.",
+          "codeSnippet": "Add a constraint that pins 'out', e.g. 'out <== <expr>;' or 'out === <expr>;' on the line below the declaration.",
+          "location": "signal 'out' (line 32)"
+        },
+        {
+          "weaknessId": "ZKWC-008",
+          "title": "Witness assignment '<-- out' has no matching constraint",
+          "rationale": "Circom 2.x '<--' is a witness-only assignment and adds NO constraint. The value 'a * b' is therefore prover-chosen unless a matching '<==', '===' or '$$' appears on the next non-empty, non-comment line.",
+          "codeSnippet": "Replace 'out <-- a * b;' with 'out <== a * b;', or add a separate 'out === a * b;' constraint directly under the assignment.",
+          "location": "signal 'out' (line 33)"
+        },
+        {
+          "weaknessId": "ZKWC-008",
+          "title": "Witness assignment '<-- sum' has no matching constraint",
+          "rationale": "Circom 2.x '<--' is a witness-only assignment and adds NO constraint. The value 'a + b' is therefore prover-chosen unless a matching '<==', '===' or '$$' appears on the next non-empty, non-comment line.",
+          "codeSnippet": "Replace 'out <-- a * b;' with 'out <== a * b;', or add a separate 'sum === a + b;' constraint directly under the assignment.",
+          "location": "signal 'sum' (line 41)"
+        },
+        {
+          "weaknessId": "ZKWC-003",
+          "title": "Public input 'pub' is not range-checked",
+          "rationale": "'pub' is a public input used in arithmetic. Without a range check (Num2Bits, RangeCheck, or bit-decomposition), a malicious prover can submit a value outside the intended bit-width and exploit field-modulus wraparound.",
+          "codeSnippet": "Add a Num2Bits(n) / range-check sub-template that bounds 'pub' to its intended bit-width.",
+          "location": "signal 'pub' (line 24)"
+        },
+        {
+          "weaknessId": "ZKWC-003",
+          "title": "Public input 'a' is not range-checked",
+          "rationale": "'a' is a public input used in arithmetic. Without a range check (Num2Bits, RangeCheck, or bit-decomposition), a malicious prover can submit a value outside the intended bit-width and exploit field-modulus wraparound.",
+          "codeSnippet": "Add a Num2Bits(n) / range-check sub-template that bounds 'a' to its intended bit-width.",
+          "location": "signal 'a' (line 27)"
+        },
+        {
+          "weaknessId": "ZKWC-003",
+          "title": "Public input 'b' is not range-checked",
+          "rationale": "'b' is a public input used in arithmetic. Without a range check (Num2Bits, RangeCheck, or bit-decomposition), a malicious prover can submit a value outside the intended bit-width and exploit field-modulus wraparound.",
+          "codeSnippet": "Add a Num2Bits(n) / range-check sub-template that bounds 'b' to its intended bit-width.",
+          "location": "signal 'b' (line 28)"
+        }
+      ],
+      "meta": {
+        "language": "circom",
+        "offline": true
+      }
+    }
+  },
+  "finishedAt": "2026-06-14T09:28:18.549Z"
+}

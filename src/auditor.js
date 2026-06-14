@@ -13,9 +13,23 @@
 const cysic = require("./cysicClient");
 const p = require("./prompts");
 const { isValidWeaknessId, listWeaknesses } = require("./zkwc");
+const offline = require("./offlineAuditor");
 
 const SUPPORTED_LANGS = ["circom", "noir", "halo2"];
 const MAX_SOURCE_LEN = 200_000; // 200 KB of source per audit
+
+/**
+ * The auditor has two backends:
+ *   1. Live:    calls the Cysic Minimax API. Used when CYSIC_API_KEY is set.
+ *   2. Offline: rule-based pattern matching. Used when CYSIC_API_KEY is
+ *      missing, so the tools always produce real, accurate findings and the
+ *      project is demo-able on any platform (including offline CI / judges).
+ *
+ * The JSON contract is identical for both backends.
+ */
+function hasApiKey() {
+  return Boolean(process.env.CYSIC_API_KEY && process.env.CYSIC_API_KEY.trim());
+}
 
 function detectLang(source, lang) {
   if (lang && SUPPORTED_LANGS.includes(lang)) return lang;
@@ -131,10 +145,39 @@ function buildSummary(findings, reconSummary) {
  * Run the full 4-pass audit.
  * Returns a structured result that maps directly to the
  * audit_circuit tool's JSON contract.
+ *
+ * Backend:
+ *   - If CYSIC_API_KEY is set, runs the live 4-pass pipeline on the
+ *     Cysic Minimax model.
+ *   - Otherwise, falls back to the deterministic offline auditor
+ *     (src/offlineAuditor.js) so the tool is always usable.
  */
 async function auditCircuit(source, lang) {
   const src = validateSource(source);
   const lg = validateLang(lang);
+
+  if (!hasApiKey()) {
+    // Offline path: deterministic, no API call. Same JSON contract.
+    if (lg !== "circom") {
+      return {
+        findings: [],
+        summary:
+          "Offline mode is currently Circom-only. Set CYSIC_API_KEY to " +
+          "audit Noir or Halo2 circuits with the live model.",
+        soundnessScore: null,
+        meta: { language: lg, offline: true, reason: "no-api-key" },
+      };
+    }
+    const findings = offline.localAuditCircom(src);
+    const soundnessScore = offline.localScore(findings);
+    return {
+      findings,
+      summary: buildSummary(findings, "Offline rule-based audit (no CYSIC_API_KEY set)."),
+      soundnessScore,
+      meta: { language: lg, offline: true },
+    };
+  }
+
   const messages = (userPrompts) => [
     { role: "system", content: p.SYSTEM_PROMPT },
     { role: "user", content: userPrompts },
@@ -247,6 +290,28 @@ async function checkConstraint(source, concern) {
     throw new Error("concern must be a non-empty string");
   }
   const lg = detectLang(src, null);
+
+  if (!hasApiKey()) {
+    if (lg !== "circom") {
+      return {
+        concern,
+        verdict: "inconclusive",
+        explanation:
+          "Offline mode is currently Circom-only. Set CYSIC_API_KEY for Noir/Halo2.",
+        findings: [],
+        meta: { language: lg, offline: true },
+      };
+    }
+    const result = offline.localCheck(src, concern);
+    return {
+      concern,
+      verdict: result.verdict,
+      explanation: result.explanation,
+      findings: result.findings,
+      meta: { language: lg, offline: true },
+    };
+  }
+
   const messages = [
     { role: "system", content: p.SYSTEM_PROMPT },
     { role: "user", content: p.targetedCheckUserPrompt(src, lg, concern) },
@@ -275,6 +340,23 @@ async function checkConstraint(source, concern) {
 async function explainCircuit(source, lang) {
   const src = validateSource(source);
   const lg = validateLang(lang);
+
+  if (!hasApiKey()) {
+    if (lg !== "circom") {
+      return {
+        summary:
+          "Offline mode is currently Circom-only. Set CYSIC_API_KEY for Noir/Halo2.",
+        publicSignals: [],
+        privateSignals: [],
+        signalToConstraintMap: [],
+        reviewerNotes: [],
+        meta: { language: lg, offline: true },
+      };
+    }
+    const r = offline.explainCircom(src);
+    return Object.assign({}, r, { meta: { language: lg, offline: true } });
+  }
+
   const messages = [
     { role: "system", content: p.SYSTEM_PROMPT },
     { role: "user", content: p.explainUserPrompt(src, lg) },
@@ -302,6 +384,21 @@ async function explainCircuit(source, lang) {
 async function suggestConstraints(source, lang) {
   const src = validateSource(source);
   const lg = validateLang(lang);
+
+  if (!hasApiKey()) {
+    if (lg !== "circom") {
+      return {
+        suggestions: [],
+        meta: { language: lg, offline: true, reason: "no-api-key" },
+      };
+    }
+    const r = offline.localSuggest(src);
+    return {
+      suggestions: r.suggestions,
+      meta: { language: lg, offline: true },
+    };
+  }
+
   // Lightweight recon: intent only, to ground the suggestions.
   let recon = {};
   try {
@@ -359,4 +456,6 @@ module.exports = {
   detectLang,
   SUPPORTED_LANGS,
   listWeaknesses,
+  hasApiKey,
 };
+

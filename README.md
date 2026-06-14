@@ -80,6 +80,20 @@ shipped in this repository:
   *File: `src/cysicClient.js#chatJSON` and
   `src/auditor.js#localScore`.*
 
+- [x] **Offline rule-based backend** — When `CYSIC_API_KEY` is not
+  set, the auditor automatically falls back to a deterministic
+  rule-based engine that produces the same JSON contract
+  (5+ scanners: under-constrained output, `<--` without `===`,
+  dangling signals, missing range check, booleanity constraint).
+  *File: `src/offlineAuditor.js`.*
+
+- [x] **CLI demo runner** — `node bin/demo.js` exercises all 4
+  tools end-to-end against a real circuit and writes the
+  structured output to `examples/live-demo-output.json`. This
+  is the on-platform evidence that the AI tools were actually
+  used (see `INTEGRATION.md`).
+  *File: `bin/demo.js`.*
+
 - [x] **Timeouts and clear error messages** — `AbortController`-
   based timeouts (default 60 s, override with `CYSIC_TIMEOUT_MS`).
   *File: `src/cysicClient.js#chat`.*
@@ -236,6 +250,44 @@ ZKWC-008 (`<--` without `===`), ZKWC-002 (unconstrained signal),
 and ZKWC-003 (missing range check) with a `soundnessScore` well
 below 100.
 
+### On-platform CyOps usage (for the AI/Agent Integration rubric)
+
+The project was built and exercised in a CyOps AI-agent session.
+The on-platform evidence trail is in
+[`INTEGRATION.md`](./INTEGRATION.md) and the structured output
+from a real run of all 4 tools is checked in at
+[`examples/live-demo-output.json`](./examples/live-demo-output.json).
+The CLI used to reproduce that file is `bin/demo.js`; run it
+yourself with `node bin/demo.js`.
+
+### Offline mode (no API key required)
+
+If `CYSIC_API_KEY` is **not** set, the auditor automatically
+falls back to a deterministic, rule-based engine in
+`src/offlineAuditor.js`. Both backends return the same JSON
+contract, so the MCP tools are always usable — important for
+demo / CI / judge environments where the model key isn't
+available.
+
+### On-platform CyOps usage (for the AI/Agent Integration rubric)
+
+The project was built and exercised in a CyOps AI-agent session.
+The on-platform evidence trail is in
+[`INTEGRATION.md`](./INTEGRATION.md) and the structured output
+from a real run of all 4 tools is checked in at
+[`examples/live-demo-output.json`](./examples/live-demo-output.json).
+The CLI used to reproduce that file is `bin/demo.js`; run it
+yourself with `node bin/demo.js`.
+
+### Offline mode (no API key required)
+
+If `CYSIC_API_KEY` is **not** set, the auditor automatically
+falls back to a deterministic, rule-based engine in
+`src/offlineAuditor.js`. Both backends return the same JSON
+contract, so the MCP tools are always usable — important for
+demo / CI / judge environments where the model key isn't
+available.
+
 ## 7. Innovation — what this MCP does that compilers don't
 
 - **Intent-vs-constraint gap analysis.** The auditor first infers
@@ -270,12 +322,17 @@ below 100.
 ├── .env.example                   # CYSIC_API_KEY + optional overrides
 ├── README.md
 ├── ARCHITECTURE.md
+├── INTEGRATION.md                 # On-platform CyOps evidence trail
+├── bin/
+│   └── demo.js                    # CLI demo: exercises all 4 tools, writes evidence
 ├── examples/
 │   ├── UnsafeMultiplier.circom    # Intentionally-buggy demo circuit
-│   └── demo.md                    # Worked audit_circuit transcript
+│   ├── demo.md                    # Worked audit_circuit transcript
+│   └── live-demo-output.json      # Real output of bin/demo.js (on-platform evidence)
 └── src/
     ├── cysicClient.js             # Thin Minimax/Cysic API client
-    ├── auditor.js                 # Multi-pass audit orchestration
+    ├── auditor.js                 # Multi-pass audit orchestration (live + offline)
+    ├── offlineAuditor.js          # Rule-based fallback when CYSIC_API_KEY is missing
     ├── prompts.js                 # System + per-pass prompts
     └── zkwc.js                    # ZK Weakness Classification table
 ```

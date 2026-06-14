@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check src/cysicClient.js && node --check src/auditor.js && node --check src/prompts.js && node --check src/zkwc.js"
+    "demo": "node bin/demo.js",
+    "check": "node --check server.js && node --check bin/demo.js && node --check src/cysicClient.js && node --check src/auditor.js && node --check src/prompts.js && node --check src/zkwc.js && node --check src/offlineAuditor.js"
   },
   "engines": {
     "node": ">=18.0.0"
