@@ -1,0 +1,35 @@
+{
+  "name": "zk-circuit-auditor-mcp",
+  "version": "0.1.0",
+  "description": "MCP server that audits zero-knowledge circuits (Circom, Noir, Halo2) for soundness and constraint bugs using the Cysic Minimax model.",
+  "type": "commonjs",
+  "main": "server.js",
+  "bin": {
+    "zk-circuit-auditor-mcp": "server.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check src/cysicClient.js && node --check src/auditor.js && node --check src/prompts.js && node --check src/zkwc.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.25.0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "zero-knowledge",
+    "zk",
+    "circom",
+    "noir",
+    "halo2",
+    "circuit-auditor",
+    "soundness",
+    "cysic",
+    "minimax"
+  ],
+  "license": "MIT"
+}
